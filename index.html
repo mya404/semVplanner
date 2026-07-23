@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Semester 5 Study Planner</title>
+    <meta
+      name="description"
+      content="A semester five study planner built from the provided CST syllabus."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="shortcut icon" href="favicon.svg" type="image/svg+xml" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="backdrop backdrop-one"></div>
+    <div class="backdrop backdrop-two"></div>
+
+    <main class="app-shell">
+      <section class="hero panel">
+        <div class="hero-copy">
+          <p class="eyebrow">R23B.TECH.CST</p>
+          <h1>Semester 5 Study Planner</h1>
+          <p class="lede">
+            A syllabus-aware planner for CT501 through CS593, with weekly workload,
+            module tracking, and a persistent task board.
+          </p>
+          <div class="hero-actions">
+            <button id="addTaskBtn" class="primary-btn">Add study task</button>
+            <button id="resetBtn" class="ghost-btn">Reset progress</button>
+          </div>
+        </div>
+        <div class="hero-stats" id="heroStats"></div>
+      </section>
+
+      <section class="dashboard-grid">
+        <aside class="panel sidebar">
+          <div class="sidebar-card">
+            <h2>Study rhythm</h2>
+            <p id="studyRhythm"></p>
+          </div>
+          <div class="sidebar-card">
+            <h2>Next focus</h2>
+            <p id="nextFocus"></p>
+          </div>
+          <div class="sidebar-card">
+            <h2>Weekly targets</h2>
+            <div id="targetList" class="target-list"></div>
+          </div>
+        </aside>
+
+        <section class="panel main-panel">
+          <div class="section-head">
+            <div>
+              <p class="section-kicker">Course planner</p>
+              <h2>Semester map</h2>
+            </div>
+            <div class="filter-row" id="categoryFilters" aria-label="Course filters"></div>
+          </div>
+          <div id="courseGrid" class="course-grid"></div>
+        </section>
+      </section>
+
+      <section class="panel planner-panel">
+        <div class="section-head">
+          <div>
+            <p class="section-kicker">Weekly schedule</p>
+            <h2>Recommended study blocks</h2>
+          </div>
+          <p class="section-note">
+            Built from credit weight, practical hours, and syllabus module counts.
+          </p>
+        </div>
+        <div id="scheduleGrid" class="schedule-grid"></div>
+      </section>
+
+      <section class="panel tasks-panel">
+        <div class="section-head">
+          <div>
+            <p class="section-kicker">Task board</p>
+            <h2>Keep your revision moving</h2>
+          </div>
+          <p class="section-note">Click a task to mark it done. Your progress stays on this device.</p>
+        </div>
+        <div class="tasks-layout">
+          <form id="taskForm" class="task-form">
+            <label>
+              Task
+              <input id="taskTitle" type="text" maxlength="80" placeholder="Example: Revise AI heuristic search" />
+            </label>
+            <label>
+              Course
+              <select id="taskCourse"></select>
+            </label>
+            <label>
+              Priority
+              <select id="taskPriority">
+                <option value="High">High</option>
+                <option value="Medium" selected>Medium</option>
+                <option value="Low">Low</option>
+              </select>
+            </label>
+            <button type="submit" class="primary-btn">Save task</button>
+          </form>
+          <div>
+            <div id="taskList" class="task-list"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel ai-panel">
+        <div class="section-head">
+          <div>
+            <p class="section-kicker">Optional AI</p>
+            <h2>Gemini study assistant</h2>
+          </div>
+          <p class="section-note">
+            Save your own API key to generate personalized revision prompts and study plans.
+          </p>
+        </div>
+        <div class="ai-layout">
+          <form id="aiForm" class="ai-form">
+            <label>
+              Gemini API key
+              <input id="geminiKey" type="password" placeholder="AIza..." autocomplete="off" />
+            </label>
+            <label>
+              Model
+              <input id="geminiModel" type="text" value="gemini-1.5-flash" />
+            </label>
+            <div class="ai-actions">
+              <button type="submit" class="primary-btn">Save key</button>
+              <button id="generateAiBtn" type="button" class="ghost-btn">Generate plan</button>
+            </div>
+            <p id="aiStatus" class="ai-status"></p>
+          </form>
+          <div class="ai-output-card">
+            <div class="ai-output-head">
+              <h3>AI output</h3>
+              <button id="clearAiOutputBtn" type="button" class="ghost-btn small-btn">Clear</button>
+            </div>
+            <div id="aiOutput" class="ai-output empty-state">
+              Save a Gemini key to generate study suggestions. If you skip this, the planner still works fully offline.
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <template id="courseCardTemplate">
+      <article class="course-card">
+        <div class="course-top">
+          <div>
+            <p class="course-code"></p>
+            <h3 class="course-title"></h3>
+          </div>
+          <span class="chip"></span>
+        </div>
+        <div class="course-meta"></div>
+        <div class="progress-wrap">
+          <div class="progress-track"><span class="progress-fill"></span></div>
+          <p class="progress-label"></p>
+        </div>
+        <div class="module-preview"></div>
+      </article>
+    </template>
+
+    <template id="taskTemplate">
+      <button class="task-item" type="button">
+        <div>
+          <p class="task-title"></p>
+          <p class="task-subtitle"></p>
+        </div>
+        <span class="task-state"></span>
+      </button>
+    </template>
+
+    <script src="app.js"></script>
+  </body>
+</html>
